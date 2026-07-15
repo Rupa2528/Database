@@ -1,0 +1,67 @@
+# Smart Lender Database Design
+
+This repository contains the Database Architecture and Entity Relationship Diagram (ERD) for the **Smart Lender** application—an AI/ML-powered system designed to predict loan eligibility and default risks.
+
+---
+
+## 📌 Project Overview
+The "Smart Lender" system uses machine learning models to analyze applicant profiles and instantly predict whether a loan application should be approved or rejected. To support this system, the database is designed to handle user authentication, store financial metrics required by the ML model, track submitted loan applications, and log model prediction results for auditing.
+
+---
+
+## 🗄️ Database Schema & Entities
+
+The database consists of 4 main tables designed to decouple user login credentials from the heavy financial metrics used by the machine learning pipelines.
+
+### 1. `users` Table
+Stores basic user identity and authentication credentials.
+*   `user_id` (INT, Primary Key): Unique identifier for each user.
+*   `first_name` (VARCHAR): User's first name.
+*   `last_name` (VARCHAR): User's last name.
+*   `email` (VARCHAR, Unique): User's login email.
+*   `password_hash` (VARCHAR): Secured password string.
+*   `phone_number` (VARCHAR): Contact details.
+
+### 2. `applicant_profiles` Table
+Stores demographic and financial details required as features for the Loan Prediction ML Model.
+*   `profile_id` (INT, Primary Key): Unique identifier for the profile.
+*   `user_id` (INT, Foreign Key): Links to the `users` table.
+*   `gender` (VARCHAR): Male / Female.
+*   `married` (VARCHAR): Yes / No.
+*   `dependents` (VARCHAR): Number of dependents (0, 1, 2, 3+).
+*   `education` (VARCHAR): Graduate / Under Graduate.
+*   `self_employed` (VARCHAR): Yes / No.
+*   `applicant_income` (FLOAT): Monthly income of the primary applicant.
+*   `coapplicant_income` (FLOAT): Monthly income of the co-applicant.
+*   `credit_history` (FLOAT): Credit history rating (e.g., 1.0 represents good credit history, 0.0 represents bad/no credit history).
+*   `property_area` (VARCHAR): Urban / Semiurban / Rural.
+
+### 3. `loan_applications` Table
+Tracks individual loan requests made by users.
+*   `loan_id` (INT, Primary Key): Unique identifier for the loan application.
+*   `user_id` (INT, Foreign Key): Links to the `users` table.
+*   `loan_amount` (FLOAT): Requested loan principal amount.
+*   `loan_amount_term` (INT): Tenure of the loan in months or days.
+*   `application_date` (TIMESTAMP): Date and time of submission.
+*   `status` (VARCHAR): Status of the application (Pending / Approved / Rejected).
+
+### 4. `predictions` Table
+Logs predictions made by the automated AI/ML model for analytical tracking and credit auditing.
+*   `prediction_id` (INT, Primary Key): Unique identifier for the prediction log.
+*   `loan_id` (INT, Foreign Key): Links to the specific `loan_applications` record.
+*   `predicted_status` (VARCHAR): ML predicted outcome (Approved / Rejected).
+*   `probability_score` (FLOAT): Confidence score of the prediction (e.g., probability of default).
+*   `prediction_date` (TIMESTAMP): Timestamp of model execution.
+
+---
+
+## 🔗 Relationships (ERD Design)
+
+*   **User $\leftrightarrow$ Applicant Profile (1-to-1):** One registered user can have exactly one financial profile.
+*   **User $\leftrightarrow$ Loan Applications (1-to-Many):** One user can apply for multiple loans over time.
+*   **Loan Application $\leftrightarrow$ Prediction (1-to-1):** Each specific loan application triggers exactly one ML prediction run.
+
+---
+
+## 🛠️ How to Visualize the Schema
+You can visualize and modify this schema using [dbdiagram.io](https://dbdiagram.io/). Copy and paste the script provided in `database_schema.dbml` directly into the tool to generate the ERD interactively.
